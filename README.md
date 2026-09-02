@@ -7,20 +7,19 @@ Examination of quicksort, starting from a standard recursive and in-place implem
 ## Roadmap
 
 RECURSIVE
-- [ ] Basic implementation
-- [ ] Comparison function
+- [x] Basic implementation
+- [x] Comparison function
 - [ ] Benchmark function
 - [ ] Timer function
 
 PARTITIONING
-- [ ] Hoare
+- [x] Hoare
 - [ ] Lomuto
 - [ ] 3-Way
 - [ ] Bentley-McIlroy
 
 PIVOT SELECTION
-- [ ] First/Last element
-- [ ] Middle element
+- [x] Middle element
 - [ ] Random element
 - [ ] Best of 3
 - [ ] Median from sample
@@ -38,7 +37,7 @@ MULTI-THREADING
 - [ ] Resource Monitor
 
 BENCHMARKING
-- [ ] Random data
+- [x] Random data
 - [ ] Random with no unique elements
 - [ ] Reverse-sorted data
 - [ ] Nearly sorted data
