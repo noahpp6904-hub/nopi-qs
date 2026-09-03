@@ -5,23 +5,26 @@
 #define AT(list, index, size) \
     NOPI_LIST_AT (list, index, size)
 
-nopi_qs_t
+nopi_qs_t*
 nopi_qs_init (
     void* list,
     size_t len,
     size_t size,
     nopi_cmp_fn cmp_fn,
-    nopi_p_fn p_fn
+    nopi_p_fn p_fn,
+    nopi_qs_fn qs_fn
 )
 {
-    nopi_qs_t q;
-    q.list = list;
-    q.len = len;
-    q.size = size;
-    q.p = malloc(size);
-    q.temp = malloc(size);
-    q.cmp_fn = cmp_fn;
-    q.p_fn = p_fn;
+    nopi_qs_t *q = malloc(sizeof(*q));
+
+    q->list = list;
+    q->len = len;
+    q->size = size;
+    q->p = malloc(size);
+    q->temp = malloc(size);
+    q->cmp_fn = cmp_fn;
+    q->p_fn = p_fn;
+    q->qs_fn = qs_fn;
 
     return q;
 }
@@ -68,9 +71,6 @@ nopi_sorted (
     }
     return 1;
 }
-
-
-
 
 size_t
 nopi_p_naive (
@@ -128,7 +128,7 @@ nopi_qs_partition_hoare (
 }
 
 void
-nopi_qs_sort_hoare (
+nopi_qs_hoare (
    nopi_qs_t *qs,
    size_t start,
    size_t end
@@ -144,13 +144,13 @@ nopi_qs_sort_hoare (
     );
 
      /* left partition */
-    nopi_qs_sort_hoare (
+    nopi_qs_hoare (
         qs,
         start,
         split
     );
     /* right partition */
-    nopi_qs_sort_hoare (
+    nopi_qs_hoare (
         qs,
         split + 1,
         end
@@ -158,7 +158,7 @@ nopi_qs_sort_hoare (
 }
 
 void
-nopi_qs_hoare (
+nopi_qs (
     nopi_qs_t *qs
 )
 {
@@ -166,7 +166,7 @@ nopi_qs_hoare (
     if (qs->size == 0) return;
     if (qs->list == NULL || qs->cmp_fn == NULL || qs->p_fn == NULL) return;
 
-    nopi_qs_sort_hoare (
+    qs->qs_fn (
         qs,
         0,
         qs->len - 1
