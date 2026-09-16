@@ -1,6 +1,7 @@
 #include "nopi-qs.h"
 #include <stdint.h>
 #include <memory.h>
+#include <string.h>
 
 #define AT(list, index, size) \
     NOPI_LIST_AT (list, index, size)
@@ -12,21 +13,49 @@ nopi_qs_init (
     size_t size,
     nopi_cmp_fn cmp_fn,
     nopi_p_fn p_fn,
-    nopi_qs_fn qs_fn
+    nopi_qs_fn qs_fn,
+    char* name
 )
 {
-    nopi_qs_t *q = malloc(sizeof(*q));
+    nopi_qs_t *q = malloc (sizeof (*q));
 
     q->list = list;
     q->len = len;
     q->size = size;
-    q->p = malloc(size);
-    q->temp = malloc(size);
     q->cmp_fn = cmp_fn;
     q->p_fn = p_fn;
     q->qs_fn = qs_fn;
 
+
+    q->name = NULL;
+    if (name != NULL)
+    {
+        q->name = malloc (strlen (name) + 1);
+        strcpy (q->name, name);
+    }
+
+    q->p = NULL;
+    q->temp = NULL;
+    if (size != 0)
+    {
+        q->p = malloc (size);
+        q->temp = malloc (size);   
+    }
+
     return q;
+}
+
+
+void
+nopi_qs_destroy (
+    nopi_qs_t* q
+)
+{
+    if (q->p != NULL) free (q->p);
+    if (q->temp != NULL) free (q->temp);
+    if (q->name != NULL) free (q->name);
+
+    free (q);
 }
 
 static void
@@ -109,8 +138,9 @@ nopi_qs_partition_hoare (
 
     while (1) 
     {
+        /* Check from left to right for a element greater than the pivot */
         while (qs->cmp_fn ( AT (qs->list, l, qs->size), qs->p) < 0) l++;
-
+        /* Check from right to left for a element smaller than the pivot */
         while (qs->cmp_fn ( AT (qs->list, r, qs->size), qs->p) > 0) r--;
 
         if (l >= r) break;
@@ -129,21 +159,20 @@ nopi_qs_partition_hoare (
 
 void
 nopi_qs_hoare (
-   nopi_qs_t *qs,
-   size_t start,
-   size_t end
+    nopi_qs_t *qs,
+    size_t start,
+    size_t end
 )
 {
-    if (start >= end)
-        return;
-
+    if (start >= end) return;
+    
     size_t split = nopi_qs_partition_hoare (
         qs,
         start,
         end
     );
 
-     /* left partition */
+    /* left partition */
     nopi_qs_hoare (
         qs,
         start,
@@ -156,6 +185,91 @@ nopi_qs_hoare (
         end
     );
 }
+
+size_t
+nopi_qs_partition_lomuto (
+    nopi_qs_t *qs,
+    size_t start,
+    size_t end
+)
+{
+    /* Select the index of the pivot */
+    size_t pivot_index = qs->p_fn (
+        qs,
+        start,
+        end
+    );
+
+    /* Copy pivot to make it compareable */
+    memcpy (
+        qs->p,
+        AT (qs->list, pivot_index, qs->size),
+        qs->size   
+    );
+
+    /* Move pivot to the end */
+    nopi_swap (
+        qs,
+        AT (qs->list, pivot_index, qs->size),
+        AT (qs->list, end, qs->size)
+    );
+
+    /* Point for the new pivot before splitting*/
+    size_t split = start;
+
+    for (size_t i = start; i < end; i++)
+    {
+        /* Check if element greater than the pivot */
+        if (qs->cmp_fn ( AT (qs->list, i, qs->size), qs->p) < 0)
+        {
+            /* swap elements from: a > b to: b < a */
+            nopi_swap (
+                qs,
+                AT (qs->list, i, qs->size),
+                AT (qs->list, split, qs->size)
+            );
+            split++;
+        }
+    }
+
+    nopi_swap (
+        qs,
+        AT (qs->list, split, qs->size),
+        AT (qs->list, end, qs->size)
+    );
+
+    return split;
+}
+
+void
+nopi_qs_lomuto (
+    nopi_qs_t *qs,
+    size_t start,
+    size_t end
+)
+{
+    if (start >= end) return;
+
+    size_t split = nopi_qs_partition_lomuto (
+        qs,
+        start,
+        end
+    );
+
+    /* left partition */
+    nopi_qs_lomuto (
+        qs,
+        start,
+        split
+    );
+    /* right partition */
+    nopi_qs_lomuto (
+        qs,
+        split + 1,
+        end
+    );
+}
+
 
 void
 nopi_qs (

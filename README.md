@@ -9,12 +9,12 @@ Examination of quicksort, starting from a standard recursive and in-place implem
 RECURSIVE
 - [x] Basic implementation
 - [x] Comparison function
-- [ ] Benchmark function
-- [ ] Timer function
+- [x] Benchmark function
+- [x] Timer function
 
 PARTITIONING
 - [x] Hoare
-- [ ] Lomuto
+- [x] Lomuto
 - [ ] 3-Way
 - [ ] Bentley-McIlroy
 
@@ -42,7 +42,7 @@ BENCHMARKING
 - [ ] Reverse-sorted data
 - [ ] Nearly sorted data
 - [ ] Duplicate-heavy data
-- [ ] Different input sizes
+- [x] Different input sizes
 - [ ] Different integer types
 - [ ] Measure execution time
 - [ ] Measure memory usage
@@ -51,7 +51,9 @@ BENCHMARKING
 
 ## Results of benchmarking
 
-I will use qsort() from <stdlib.h> as the baseline for all implementations.
+I will use `qsort()` from `<stdlib.h>` as the baseline for all implementations.
 For each benchmark critira, I will provide a graph comparing the different implementatios across varying input size. This will show the impact of each optimization and overall performance. 
+
+
 
 ## Results of analysis

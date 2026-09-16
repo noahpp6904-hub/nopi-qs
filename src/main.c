@@ -16,21 +16,39 @@ main (
     char* argv[]
 )
 {
-    /* Standart qs with hoare */
+    /* Standart qs with hoare partitioning and naive pivot */
     nopi_qs_t* qs_hoare_ctx = nopi_qs_init (
         NULL,
-        1,
-        1,
+        0,
+        0,
         nopi_cmp_u32,
         nopi_p_naive,
-        nopi_qs_hoare
+        nopi_qs_hoare,
+        "Hoare"
     );
 
+    nopi_qs_t* qs_lomuto_ctx = nopi_qs_init (
+        NULL,
+        0,
+        0,
+        nopi_cmp_u32,
+        nopi_p_naive,
+        nopi_qs_lomuto,
+        "Lomuto"
+    );
+
+    size_t ctx_count = 2;
     nopi_qs_t* ctx[] = {
-        qs_hoare_ctx
+        qs_hoare_ctx,
+        qs_lomuto_ctx
     };
 
-    test_qs (ctx, 1);
+    test_qs (ctx, ctx_count);
+
+    for (size_t i = 0; i < ctx_count; i++)
+    {
+        nopi_qs_destroy (ctx[i]);
+    }
 
     return 0;
 }
@@ -44,18 +62,22 @@ void test_qs (
     for (size_t i = 0; i < len; i++)
     {
         nopi_qs_t* curr_ctx = ctx[i];
+        curr_ctx->size = sizeof (int);
+        curr_ctx->temp = malloc (sizeof (int));
+        if (curr_ctx->temp == NULL)
+            exit (EXIT_FAILURE);
+        curr_ctx->p = malloc (sizeof (int));
+        if (curr_ctx->p == NULL)
+            exit (EXIT_FAILURE);
 
         /* Select the sample size */
-        for (size_t sample_size = 1000; sample_size < 100'000'000; sample_size *= 10)
+        for (size_t sample_size = 1000; sample_size < 10'000; sample_size *= 10)
         {
             int *numbers = malloc (sample_size * sizeof(int));
             if (numbers == NULL)
                 exit (EXIT_FAILURE);
 
             curr_ctx->len = sample_size;
-            curr_ctx->size = (sizeof(int));
-            curr_ctx->temp = malloc (sizeof (int));
-            curr_ctx->p = malloc (sizeof (int));
 
             double time[100];
             double avg_time = 0.0;
@@ -73,13 +95,13 @@ void test_qs (
 
                 time[test_cycle] = curr_time;
                 avg_time += curr_time;
+
+                if (!nopi_sorted (curr_ctx)) printf("List was not sorted.");
             }
             avg_time /= 100;
-            printf ("Average time: %f, with %zu numbers\n", avg_time, sample_size);
-            
+            printf ("Implementations: %s, average time: %lf, with %zu numbers\n", curr_ctx->name, avg_time, sample_size);
+            fflush (stdout);
             free (numbers);
-            free (curr_ctx->temp);
-            free (curr_ctx->p);
         }
     }
 }

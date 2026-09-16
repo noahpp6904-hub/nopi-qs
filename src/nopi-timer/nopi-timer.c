@@ -28,5 +28,5 @@ nopi_timer_qs (
     );
 
     return (end.tv_sec - start.tv_sec) + 
-        ((end.tv_nsec + start.tv_nsec) / NSEC_PER_SEC);
+        ((end.tv_nsec - start.tv_nsec) / NSEC_PER_SEC);
 }

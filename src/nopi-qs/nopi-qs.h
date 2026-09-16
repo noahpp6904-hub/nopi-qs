@@ -30,6 +30,8 @@ struct nopi_qs
     nopi_cmp_fn cmp_fn;
     nopi_p_fn p_fn;
     nopi_qs_fn qs_fn; 
+
+    char *name;
 };
 
 nopi_qs_t*
@@ -39,7 +41,13 @@ nopi_qs_init (
     size_t size,
     nopi_cmp_fn cmp_fn,
     nopi_p_fn p_fn,
-    nopi_qs_fn qs_fn
+    nopi_qs_fn qs_fn,
+    char *name
+);
+
+void
+nopi_qs_destroy (
+    nopi_qs_t* q
 );
 
 void
@@ -66,13 +74,26 @@ nopi_qs_partition_hoare (
     size_t end
 );
 
-void nopi_qs_hoare (
+void
+nopi_qs_hoare (
     nopi_qs_t* qs,
     size_t start,
     size_t end
 );
 
-void nopi_qs_lomuto (nopi_qs_t* qs);
+size_t
+nopi_qs_partition_lomuto (
+    nopi_qs_t* qs,
+    size_t start,
+    size_t end
+);
+
+void
+nopi_qs_lomuto (
+    nopi_qs_t* qs,
+    size_t start,
+    size_t end
+);
 
 void nopi_qs_3_way (nopi_qs_t* qs);
 
